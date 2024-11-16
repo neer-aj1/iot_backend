@@ -16,29 +16,37 @@ let lockStatus = {
 
 // API endpoint to get the lock status
 app.get('/api/status', (req, res) => {
-  // Check if the lock status is 'Alerted'
   res.json({
     lockStatus: lockStatus.status,
     alertMessage: lockStatus.alertMessage,
   });
 });
 
-// API endpoint to set the lock status to 'Alerted' when more than 3 failed attempts are detected by the ESP32
+// API endpoint to trigger the alert when there are multiple failed attempts
 app.post('/api/alert', (req, res) => {
-  const { alert } = req.body; // Expecting a body with an 'alert' property
-  if (alert) {
-    lockStatus.status = 'Alerted';  // Change lock status to 'Alerted'
-    lockStatus.alertMessage = 'Alert: Too many failed password attempts!';
-    return res.json({
-      message: 'Alert triggered, lock status changed to Alerted.',
-    });
-  } else {
-    lockStatus.status = 'Locked';  // Change lock status back to 'Locked'
-    lockStatus.alertMessage = '';  // Clear the alert message
-    return res.json({
-      message: 'Lock status reset to Locked.',
-    });
-  }
+  lockStatus.status = 'Alerted';  // Change the lock status to 'Alerted'
+  lockStatus.alertMessage = 'Alert: Too many failed password attempts!';
+  res.json({
+    message: 'Alert triggered, lock status changed to Alerted.',
+  });
+});
+
+// API endpoint to lock the lock
+app.post('/api/lock', (req, res) => {
+  lockStatus.status = 'Locked';  // Change the lock status to 'Locked'
+  lockStatus.alertMessage = '';  // Clear any alert message
+  res.json({
+    message: 'Lock status changed to Locked.',
+  });
+});
+
+// API endpoint to unlock the lock
+app.post('/api/unlock', (req, res) => {
+  lockStatus.status = 'Unlocked';  // Change the lock status to 'Unlocked'
+  lockStatus.alertMessage = '';  // Clear any alert message
+  res.json({
+    message: 'Lock status changed to Unlocked.',
+  });
 });
 
 // Route to display backend status (for testing or monitoring purposes)
